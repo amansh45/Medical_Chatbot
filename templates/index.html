@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 	<script type="text/javascript">
 		var id=0;
+
 		function appendMessage(message, by, msg_type) {
 			if(by == 'human') {
 				$('#user_message').val('');
@@ -87,14 +88,21 @@
 			scroll_bottom.scrollTop(height);
 		}
 
+
+		var eventSource = new EventSource("/stream")
+        eventSource.onmessage = function(e) {
+        	appendMessage([e.data], 'bot', 'chat_msg');
+        };
+
 		$(function() {
 		  	$('#send_message').bind('click', function() {
-		  		self_message = [$('#user_message').val()];
+		  		var self_message = [$('#user_message').val()];
 		  		appendMessage(self_message, 'human', '');
+		  		var sending_data = {'data': self_message[0]};
 		  		$.ajax({
 		            url: '/get_reply',
-		            data: $('#user_message').val(),
-		            type: 'POST',
+		            data: sending_data,
+                     type: 'POST',
 		            success: function(response) {
 		            	appendMessage(response.message, 'bot', response.msg_type);
 		            },
