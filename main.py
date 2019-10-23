@@ -6,6 +6,8 @@ app = Flask(__name__)
 
 push_data = ['hello there']
 
+message_id = 0
+
 @app.route('/stream')
 def stream():
     global push_data
@@ -16,24 +18,29 @@ def stream():
             push_data = []
             break
     while(len(push_data) != 0):
-        time.sleep(0.5)
+        time.sleep(1)
         return Response(eventStream(), mimetype="text/event-stream")
     return Response('', mimetype="text/event-stream")
 
 @app.route('/get_reply', methods=['GET','POST'])
 def get_reply():
-    global push_data
+    global push_data, message_id
     # chat_msg, display_cards
-    recieved_data = request.form.to_dict()['data']
+    recieved_data = request.form.to_dict()
     print('Message sent by client: ', recieved_data)
 # =============================================================================
 #     scrapped_data = scrap_data('Bangalore', 'asdfasdfsf', 'Doctor Name', 0)
 #     data = {'message': scrapped_data, 'msg_type': 'display_cards'}
 #     print(scrapped_data)
 # =============================================================================
-    scrapped_data = ['Reply from the bot']
-    data = {'message': scrapped_data, 'msg_type': 'chat_msg'}
+# =============================================================================
+#     scrapped_data = ['Reply from the bot']
+#     data = {'message': scrapped_data, 'msg_type': 'chat_msg'}
+# =============================================================================
     
+    scrapped_data = [{'headline':'This is first headline', 'body': 'This is first body'}, {'headline':'This is second headline', 'body': 'This is second body'}]
+    data = {'message': scrapped_data, 'msg_type': 'ask_options', 'id': message_id}
+    message_id+=1
     print('About to push again...')
     push_data.append('Push data again...')
 # =============================================================================
